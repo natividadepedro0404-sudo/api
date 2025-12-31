@@ -98,7 +98,6 @@ def mark_server_sent(job_id, webhook_type, category):
 
 @app.route('/webhook-filter', methods=['POST', 'OPTIONS'])
 def webhook_filter():
-    # CORS preflight
     if request.method == 'OPTIONS':
         return jsonify({"status": "ok"}), 200
     
@@ -106,51 +105,40 @@ def webhook_filter():
         print(f"\n{'='*50}")
         print("📥 Nova requisição recebida")
         
-        # Verificar se tem dados
-        if not request.data:
+        data = request.get_json()
+        if not data:
             return jsonify({"status": "error", "message": "No data"}), 400
         
-        # Tentar parsear JSON
-        data = {}
-        try:
-            data = request.get_json()
-            if not data:
-                import json
-                data = json.loads(request.data)
-        except Exception as e:
-            print(f"❌ Erro no JSON: {e}")
-            return jsonify({"status": "error", "message": f"Invalid JSON: {str(e)}"}), 400
-        
-        print(f"📋 Dados recebidos: {data}")
-        
-        # Validar job_id
         job_id = data.get('job_id')
         if not job_id:
             return jsonify({"status": "error", "message": "Missing job_id"}), 400
-        
-        print(f"🎯 Job ID: {job_id}")
         
         # Verificar duplicata
         if was_server_sent(job_id):
             print(f"📭 Duplicata ignorada: {job_id}")
             return jsonify({"status": "duplicate", "message": "Already sent"}), 200
         
-        # Simular sucesso (para teste)
-        print(f"✅ Processado: {job_id}")
+        # Determinar webhook correto baseado nos dados
+        webhook_type = determine_webhook_type(data)
+        webhook_url = WEBHOOKS.get(webhook_type, WEBHOOKS["NORMAL_WEBHOOK"])
+        
+        # Preparar embed para Discord
+        discord_data = prepare_discord_embed(data, webhook_type)
+        
+        # Enviar para Discord (assíncrono)
+        discord_queue.put((webhook_url, discord_data))
         
         # Marcar como enviado
-        webhook_type = data.get('webhook_type', 'NORMAL_WEBHOOK')
-        category = data.get('category', 'UNKNOWN')
-        mark_server_sent(job_id, webhook_type, category)
+        mark_server_sent(job_id, webhook_type, data.get('category', 'UNKNOWN'))
         
+        print(f"✅ Enfileirado para Discord: {job_id}")
         print(f"{'='*50}\n")
         
         return jsonify({
             "status": "success",
-            "message": "Received and processed",
+            "message": "Received and queued for Discord",
             "job_id": job_id,
-            "server_id": data.get('server_id', 'unknown'),
-            "test_mode": False
+            "webhook_type": webhook_type
         }), 200
         
     except Exception as e:

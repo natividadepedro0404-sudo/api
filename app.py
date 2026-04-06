@@ -12,7 +12,7 @@ import schedule
 # ===== CONFIGURAÇÕES =====
 # No seu código Python
 GITHUB_TOKEN = os.environ.get('GITHUB_TOKEN')
-REPO_NAME = "natividadepedro0404-sudo/api"  # Ex: "joao/keys-bot"
+REPO_NAME = "natividadepedro0404-sudo/api2"  # Ex: "joao/keys-bot"
 BRANCH = "main"
 
 # Arquivos no repositório

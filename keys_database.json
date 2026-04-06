@@ -3,6 +3,7 @@
     "type": "HIGHLIGHTS",
     "created_at": "2026-04-06T21:54:02.018574",
     "expires_at": "2026-04-07T21:54:02.018574",
-    "active": true
+    "active": false,
+    "expired_at": "2026-04-06T23:33:34.056667"
   }
 }

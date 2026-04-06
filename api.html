@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brainrot Scanner - Key Manager</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            color: #888;
+            margin-top: 10px;
+        }
+
+        /* Stats Cards */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card h3 {
+            font-size: 0.9em;
+            color: #aaa;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .number {
+            font-size: 2.5em;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Forms */
+        .form-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .form-title {
+            font-size: 1.3em;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-title i {
+            font-size: 1.5em;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #aaa;
+            font-size: 0.9em;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: scale(1.02);
+        }
+
+        button.danger {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        button.success {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        /* Tables */
+        .table-container {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        th {
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .status-active {
+            color: #4caf50;
+            font-weight: bold;
+        }
+
+        .status-expired {
+            color: #f44336;
+            font-weight: bold;
+        }
+
+        .delete-btn {
+            background: rgba(244, 67, 54, 0.2);
+            border: 1px solid #f44336;
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+
+        .delete-btn:hover {
+            background: #f44336;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .close {
+            cursor: pointer;
+            font-size: 24px;
+            color: #888;
+        }
+
+        .close:hover {
+            color: #fff;
+        }
+
+        /* Alert */
+        .alert {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            background: #333;
+            color: white;
+            z-index: 1100;
+            animation: slideIn 0.3s ease;
+        }
+
+        .alert.success {
+            background: #4caf50;
+        }
+
+        .alert.error {
+            background: #f44336;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Loading */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 0.6s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .stats {
+                grid-template-columns: 1fr;
+            }
+            
+            th, td {
+                font-size: 12px;
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎮 Brainrot Scanner - Key Manager</h1>
+            <p>Sistema de gerenciamento de keys HIGHLIGHTS e MIDLIGHTS</p>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats">
+            <div class="stat-card">
+                <h3>Total de Keys Ativas</h3>
+                <div class="number" id="totalKeys">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Keys HIGHLIGHTS</h3>
+                <div class="number" id="highlightsCount">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Keys MIDLIGHTS</h3>
+                <div class="number" id="midlightsCount">0</div>
+            </div>
+        </div>
+
+        <!-- Add Key Form -->
+        <div class="form-section">
+            <div class="form-title">
+                <span>➕</span>
+                <h2>Adicionar Nova Key</h2>
+            </div>
+            <div class="form-group">
+                <label>🔑 Código da Key</label>
+                <input type="text" id="newKey" placeholder="Ex: BRAINROT-ABC123-XYZ789" autocomplete="off">
+            </div>
+            <div class="form-group">
+                <label>📋 Tipo da Key</label>
+                <select id="keyType">
+                    <option value="HIGHLIGHTS">🔥 HIGHLIGHTS (Acessa todos os brainrots)</option>
+                    <option value="MIDLIGHTS">⭐ MIDLIGHTS (Acessa apenas MIDLIGHTS)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>⏰ Duração (horas)</label>
+                <input type="number" id="duration" value="24" min="1" max="720">
+            </div>
+            <button onclick="addKey()" id="addBtn">➕ Adicionar Key</button>
+        </div>
+
+        <!-- Remove Key Form -->
+        <div class="form-section">
+            <div class="form-title">
+                <span>🗑️</span>
+                <h2>Remover Key</h2>
+            </div>
+            <div class="form-group">
+                <label>🔑 Código da Key</label>
+                <input type="text" id="removeKey" placeholder="Digite a key para remover">
+            </div>
+            <button onclick="removeKey()" class="danger">🗑️ Remover Key</button>
+        </div>
+
+        <!-- Keys List -->
+        <div class="table-container">
+            <div class="form-title">
+                <span>📋</span>
+                <h2>Keys Ativas</h2>
+                <button onclick="refreshKeys()" style="margin-left: auto; padding: 8px 15px;">🔄 Atualizar</button>
+            </div>
+            <table id="keysTable">
+                <thead>
+                    <tr>
+                        <th>Key</th>
+                        <th>Tipo</th>
+                        <th>Criada em</th>
+                        <th>Expira em</th>
+                        <th>Status</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="keysList">
+                    <tr>
+                        <td colspan="6" style="text-align: center;">Carregando keys...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal de confirmação -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Confirmar ação</h3>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <p id="modalMessage"></p>
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button onclick="confirmAction()" id="confirmBtn">Confirmar</button>
+                <button onclick="closeModal()" style="background: #666;">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuração
+        const API_URL = 'http://localhost:5000'; // Altere para seu servidor Python
+        let pendingAction = null;
+        let pendingData = null;
+
+        // Mostrar alerta
+        function showAlert(message, type = 'success') {
+            const alert = document.createElement('div');
+            alert.className = `alert ${type}`;
+            alert.textContent = message;
+            document.body.appendChild(alert);
+            
+            setTimeout(() => {
+                alert.remove();
+            }, 3000);
+        }
+
+        // Mostrar loading em botão
+        function setButtonLoading(button, loading) {
+            if (loading) {
+                button.originalText = button.textContent;
+                button.innerHTML = '<span class="loading"></span> Carregando...';
+                button.disabled = true;
+            } else {
+                button.textContent = button.originalText;
+                button.disabled = false;
+            }
+        }
+
+        // Buscar keys ativas
+        async function fetchKeys() {
+            try {
+                const response = await fetch(`${API_URL}/list-keys`, {
+                    headers: {
+                        'X-Admin-Key': 'SUA_SENHA_ADMIN_AQUI'
+                    }
+                });
+                
+                if (!response.ok) throw new Error('Erro ao buscar keys');
+                
+                const data = await response.json();
+                return data.keys || [];
+            } catch (error) {
+                console.error('Erro:', error);
+                showAlert('Erro ao carregar keys: ' + error.message, 'error');
+                return [];
+            }
+        }
+
+        // Atualizar tabela de keys
+        async function refreshKeys() {
+            const tbody = document.getElementById('keysList');
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Carregando...</td></tr>';
+            
+            const keys = await fetchKeys();
+            
+            if (keys.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Nenhuma key ativa encontrada</td></tr>';
+                document.getElementById('totalKeys').textContent = '0';
+                document.getElementById('highlightsCount').textContent = '0';
+                document.getElementById('midlightsCount').textContent = '0';
+                return;
+            }
+            
+            let highlightsCount = 0;
+            let midlightsCount = 0;
+            
+            tbody.innerHTML = '';
+            keys.forEach(key => {
+                if (key.type === 'HIGHLIGHTS') highlightsCount++;
+                else if (key.type === 'MIDLIGHTS') midlightsCount++;
+                
+                const row = tbody.insertRow();
+                const createdAt = new Date(key.created_at).toLocaleString('pt-BR');
+                const expiresAt = new Date(key.expires_at).toLocaleString('pt-BR');
+                const isExpired = new Date(key.expires_at) < new Date();
+                
+                row.innerHTML = `
+                    <td><code>${key.key}</code></td>
+                    <td><span style="background: ${key.type === 'HIGHLIGHTS' ? '#667eea' : '#4facfe'}; padding: 4px 8px; border-radius: 5px; font-size: 12px;">${key.type}</span></td>
+                    <td>${createdAt}</td>
+                    <td>${expiresAt}</td>
+                    <td><span class="${isExpired ? 'status-expired' : 'status-active'}">${isExpired ? 'Expirada' : 'Ativa'}</span></td>
+                    <td><button class="delete-btn" onclick="confirmRemoveKey('${key.key}')">Remover</button></td>
+                `;
+            });
+            
+            document.getElementById('totalKeys').textContent = keys.length;
+            document.getElementById('highlightsCount').textContent = highlightsCount;
+            document.getElementById('midlightsCount').textContent = midlightsCount;
+        }
+
+        // Adicionar key
+        async function addKey() {
+            const key = document.getElementById('newKey').value.trim();
+            const keyType = document.getElementById('keyType').value;
+            const duration = parseInt(document.getElementById('duration').value);
+            
+            if (!key) {
+                showAlert('Digite o código da key!', 'error');
+                return;
+            }
+            
+            const btn = document.getElementById('addBtn');
+            setButtonLoading(btn, true);
+            
+            try {
+                const response = await fetch(`${API_URL}/add-key`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Admin-Key': 'SUA_SENHA_ADMIN_AQUI'
+                    },
+                    body: JSON.stringify({
+                        admin_key: 'SUA_SENHA_ADMIN_AQUI',
+                        key: key,
+                        key_type: keyType,
+                        duration_hours: duration
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showAlert(`✅ ${data.message}`, 'success');
+                    document.getElementById('newKey').value = '';
+                    refreshKeys();
+                } else {
+                    showAlert(`❌ Erro: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                showAlert('Erro ao adicionar key: ' + error.message, 'error');
+            } finally {
+                setButtonLoading(btn, false);
+            }
+        }
+
+        // Remover key
+        async function removeKey() {
+            const key = document.getElementById('removeKey').value.trim();
+            
+            if (!key) {
+                showAlert('Digite o código da key para remover!', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_URL}/remove-key`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Admin-Key': 'SUA_SENHA_ADMIN_AQUI'
+                    },
+                    body: JSON.stringify({
+                        admin_key: 'SUA_SENHA_ADMIN_AQUI',
+                        key: key
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showAlert(`✅ ${data.message}`, 'success');
+                    document.getElementById('removeKey').value = '';
+                    refreshKeys();
+                } else {
+                    showAlert(`❌ Erro: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                showAlert('Erro ao remover key: ' + error.message, 'error');
+            }
+        }
+
+        // Confirmar remoção
+        function confirmRemoveKey(key) {
+            document.getElementById('removeKey').value = key;
+            document.getElementById('modalMessage').textContent = `Tem certeza que deseja remover a key "${key}"? Esta ação é irreversível.`;
+            document.getElementById('modal').style.display = 'flex';
+            pendingAction = 'remove';
+        }
+
+        function confirmAction() {
+            if (pendingAction === 'remove') {
+                removeKey();
+            }
+            closeModal();
+        }
+
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+            pendingAction = null;
+        }
+
+        // Atualizar automaticamente a cada 30 segundos
+        setInterval(refreshKeys, 30000);
+        
+        // Carregar keys ao iniciar
+        refreshKeys();
+        
+        // Fechar modal ao clicar fora
+        window.onclick = function(event) {
+            const modal = document.getElementById('modal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+        
+        // Enter key para adicionar
+        document.getElementById('newKey').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') addKey();
+        });
+    </script>
+</body>
+</html>

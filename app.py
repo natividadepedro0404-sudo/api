@@ -23,7 +23,7 @@ KEYS_DB_FILE = "keys_database.json"
 
 # Configurações de expiração
 KEY_DURATION_HOURS = 24  # Tempo padrão de expiração em horas
-ADMIN_PASSWORD = "040816"  # Senha para acessar o painel administrativo
+ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'dark040816')
 
 # Inicializar Flask
 app = Flask(__name__)
